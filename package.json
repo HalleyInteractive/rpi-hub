@@ -1,0 +1,18 @@
+{
+  "name": "rpi-hub",
+  "version": "1.0.0",
+  "description": "RPi Hub for sensor information",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "node-gyp rebuild"
+  },
+  "author": "Niels Overwijn",
+  "license": "MIT",
+  "gypfile": true,
+  "dependencies": {
+    "nan": "^2.8.0",
+    "streaming-worker": "^1.0.1",
+    "streaming-worker-sdk": "^0.9.3"
+  }
+}
