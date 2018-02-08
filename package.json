@@ -13,6 +13,7 @@
   "dependencies": {
     "nan": "^2.8.0",
     "streaming-worker": "^1.0.1",
-    "streaming-worker-sdk": "^0.9.3"
+    "streaming-worker-sdk": "^0.9.3",
+    "winston": "^3.0.0-rc1"
   }
 }
