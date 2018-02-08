@@ -36,6 +36,9 @@ class Rf24Hub : public StreamingWorker {
       while ( network.available() ) {     // Is there anything ready for us?
         RF24NetworkHeader header;        // If so, grab it and print it out
         payload_t payload;
+        printf("Received pl from ");
+        printf(header);
+        printf("\n");
         network.read(header,&payload,sizeof(payload));
         printf("Received payload # %lu at %lu \n", payload.counter, payload.ms);
         Message tosend("message", std::to_string(payload.counter));
