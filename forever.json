@@ -1,0 +1,10 @@
+[
+    {
+        "uid": "rpi-hub",
+        "append": true,
+        "watch": false,
+        "script": "index.js",
+        "sourceDir": "/home/pi/rpi-hub",
+        "workingDir": "/home/pi/rpi-hub"
+    }
+]
