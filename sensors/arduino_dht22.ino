@@ -16,6 +16,7 @@ dht DHT;
 
 const uint16_t address = 01;
 const uint16_t hub_address = 00;
+int counter = 0;
 
 struct payload_t {
   float humidity;
@@ -25,7 +26,7 @@ struct payload_t {
 
 void setup(void)
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   SPI.begin();
   radio.begin();
   network.begin(90, address);
@@ -41,7 +42,8 @@ void loop() {
     Serial.print("Error reading DHT");
   }
   Serial.print("Sending...");
-  payload_t payload = { millis(), tmp };
+  payload_t payload = { millis(), counter++ };
+  Serial.print(tmp);
   RF24NetworkHeader header(hub_address);
   bool ok = network.write(header, &payload, sizeof(payload));
   if (ok) {
@@ -52,8 +54,8 @@ void loop() {
   
   Serial.println("SLEEP");
   radio.stopListening();
+  delay(5000);
+  Sleepy::loseSomeTime(SLEEP_TIME);
   
-  Sleepy::loseSomeTime(5000);
-  
- Serial.println("Awake"); 
+ Serial.println("AWAKE"); 
 }
