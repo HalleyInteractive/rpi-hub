@@ -18,7 +18,7 @@
 #include <RF24Network.h>
 #include <RF24.h>
 #include <SPI.h>
-
+#include <JeeLib.h>
 #include <dht.h>
 
 dht DHT;
@@ -40,7 +40,7 @@ unsigned long packets_sent;          // How many have we sent already
 unsigned long awakeTime = 500;                          // How long in ms the radio will stay awake after leaving sleep mode
 unsigned long sleepTimer = 0;  
 
-typedef enum { wdt_16ms = 0, wdt_32ms, wdt_64ms, wdt_128ms, wdt_250ms, wdt_500ms, wdt_1s, wdt_2s, wdt_4s, wdt_8s } wdt_prescalar_e;
+ISR(WDT_vect) { Sleepy::watchdogEvent(); } // Setup the watchdog
 
 struct payload_t {                  // Structure of our payload
   unsigned long ms;
@@ -82,7 +82,9 @@ void loop() {
   
   Serial.println("Sleep");
   radio.stopListening();                           // Switch to PTX mode. Payloads will be seen as ACK payloads, and the radio will wake up
-  network.sleepNode(600,255); // 10 minutes                          // Sleep the node for 8 cycles of 1second intervals
-  Serial.println("Awake"); 
+  
+  Sleepy::loseSomeTime(5000);
+  
+ Serial.println("Awake"); 
 }
 
