@@ -7,6 +7,7 @@
 #include <ctime>
 #include <stdio.h>
 #include <time.h>
+#include <iomanip>
 
 class Rf24Hub : public StreamingWorker {
   public:
@@ -19,15 +20,12 @@ class Rf24Hub : public StreamingWorker {
     RF24 radio(RPI_V2_GPIO_P1_15, BCM2835_SPI_CS0, BCM2835_SPI_SPEED_8MHZ);
     RF24Network network(radio);
 
-    // Address of our node in Octal format
     const uint16_t this_node = 00;
 
-    struct payload_t {                  // Structure of our payload
-      unsigned long ms;
-      unsigned long counter;
+    struct payload_t {
       uint16_t id;
-      float humidity;
-      float temperature;
+      uint16_t temperature;
+      uint16_t humidity;
     };
 
     radio.begin();
@@ -36,13 +34,15 @@ class Rf24Hub : public StreamingWorker {
     radio.printDetails();
     while(1) {
       network.update();
-      while ( network.available() ) {     // Is there anything ready for us?
-        RF24NetworkHeader header;        // If so, grab it and print it out
+      while ( network.available() ) {
+        RF24NetworkHeader header;
         payload_t payload;
-        network.read(header,&payload,sizeof(payload));
-        printf("Received payload # %lu at %lu \n", payload.counter, payload.ms);
-        Message tosend("message", std::to_string(payload.counter));
-	    writeToNode(progress, tosend);
+        network.read(header, &payload, sizeof(payload));
+	    float temperature = (float)payload.temperature / 10;
+        float humidity = (float)payload.humidity / 10;
+        printf("Received tmp: %4.2f, hum: %4.2f from %i\n", temperature, humidity, payload.id);
+        Message tosend("message", std::to_string(payload.temperature));
+	writeToNode(progress, tosend);
       }
       delay(2000);
     }
