@@ -6,6 +6,7 @@
 #include <iostream>
 #include <ctime>
 #include <stdio.h>
+#include <sstream>
 #include <time.h>
 #include <iomanip>
 
@@ -36,13 +37,32 @@ class Rf24Hub : public StreamingWorker {
       network.update();
       while ( network.available() ) {
         RF24NetworkHeader header;
+        
         payload_t payload;
         network.read(header, &payload, sizeof(payload));
-	    float temperature = (float)payload.temperature / 10;
-        float humidity = (float)payload.humidity / 10;
-        printf("Received tmp: %4.2f, hum: %4.2f from %i\n", temperature, humidity, payload.id);
-        Message tosend("message", std::to_string(payload.temperature));
-	writeToNode(progress, tosend);
+	    
+        float f_temperature = (float)payload.temperature / 10;
+        float f_humidity = (float)payload.humidity / 10;
+        
+        stringstream stream;
+
+        stream << fixed << setprecision(1) << f_temperature;
+        string temperature = stream.str();
+        stream.str("");
+        stream.clear();
+        stream << fixed << setprecision(1) << f_humidity;
+        string humidity = stream.str();
+
+        // printf("Received tmp: %s, hum: %s from %i\n", temperature.c_str(), humidity.c_str(), payload.id);
+        
+        stream.str("");
+        stream.clear();
+
+        stream << "{\"temperature\": "<< temperature << ",\"humidity\": " << humidity << ",\"id\": " << payload.id << "}";
+        string json_payload = stream.str();
+
+        Message tosend("message", json_payload);
+	    writeToNode(progress, tosend);
       }
       delay(2000);
     }

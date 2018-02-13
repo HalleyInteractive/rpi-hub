@@ -7,7 +7,7 @@ const { createLogger, format, transports } = require('winston');
 const { combine, timestamp, label, printf } = format;
 
 const logFormat = printf(info => {
-  return `${info.timestamp} - ${info.level}: ${info.message}`;
+  return `[${info.level.toUpperCase()}] ${info.timestamp} -> node: ${info.message.id}, temperature: ${info.message.temperature}, humidity: ${info.message.humidity}`;
 });
 
 const logger = createLogger({
@@ -26,5 +26,5 @@ const logger = createLogger({
     });
 
 rf24hub.from.on('message', function(value) {
-  logger.info(value);
+  logger.info(JSON.parse(value));
 });
