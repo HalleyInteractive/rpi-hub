@@ -8,7 +8,7 @@
 #include <avr/power.h>
 
 #define DHT22_PIN 5
-#define SLEEP_TIME 5000 // 5 Seconds
+#define SLEEP_TIME 60 * 10 // 10 minutes
 
 RF24 radio(7,8);
 RF24Network network(radio);
@@ -38,7 +38,8 @@ void loop() {
   network.update();
   int dhtStatus = DHT.read22(DHT22_PIN);
   float temperature = 0;
-  float humidity= 0;
+  float humidity = 0;
+  
   if(dhtStatus == DHTLIB_OK) {
     temperature = DHT.temperature;
     humidity = DHT.humidity;
@@ -49,11 +50,11 @@ void loop() {
   Serial.println("SENDING:");
   
   Serial.print("Temperature: ");
-  Serial.println(temperature*10);
+  Serial.println(temperature * 10);
   Serial.print("Humidity: ");
-  Serial.println(humidity*10);
+  Serial.println(humidity * 10);
   
-  payload_t payload = {NODE_ADDRESS, temperature*10, humidity*10};
+  payload_t payload = {NODE_ADDRESS, temperature * 10, humidity * 10};
   
   RF24NetworkHeader header(HUB_ADDRESS);
   
@@ -65,8 +66,7 @@ void loop() {
     Serial.println("FAILED");
   }
 
-  // Go to sleep
   radio.stopListening();
-  network.sleepNode(5,255);
+  network.sleepNode(SLEEP_TIME, 255);
   Serial.println("AWAKE"); 
 }
