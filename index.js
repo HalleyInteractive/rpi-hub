@@ -33,7 +33,7 @@ rf24hub.from.on('message', function(value) {
 
 function postNodeData(node_id, unit_of_measurement, state) {
   let options = {
-    hostname: 'http://localhost',
+    hostname: 'http://127.0.0.1',
     port: 8123,
     path: `/states/sensor.node_${node_id}`,
     method: 'POST',
