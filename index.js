@@ -33,15 +33,15 @@ rf24hub.from.on('message', function(value) {
 
 function postNodeData(node_id, unit_of_measurement, state) {
   let options = {
-    hostname: 'http://127.0.0.1',
+    hostname: '127.0.0.1',
     port: 8123,
-    path: `/states/sensor.node_${node_id}`,
+    path: `/api/states/sensor.node_${node_id}_${getFriendlyMeasurementName(unit_of_measurement)}`,
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
     }
   };
-  
+
   let req = http.request(options, function(res) {
     logger.debug(`Status: ${res.statusCode}`);
     logger.debug(`Headers: ${JSON.stringify(res.headers)}`);
@@ -50,19 +50,19 @@ function postNodeData(node_id, unit_of_measurement, state) {
       logger.debug(`Body: ${body}`);
     });
   });
-  
+
   req.on('error', function(e) {
     logger.error(`problem with request: ${e.message}`);
   });
-  
+
   let data = {
     state: state,
     attributes: {
       unit_of_measurement: unit_of_measurement,
-      friendly_name: getFriendlyNodeName(node_id)
+      friendly_name: `${getFriendlyMeasurementName(unit_of_measurement)} ${getFriendlyNodeName(node_id)}`
     }
   }
-  
+
   req.write(JSON.stringify(data));
   req.end();
 }
@@ -70,10 +70,24 @@ function postNodeData(node_id, unit_of_measurement, state) {
 function getFriendlyNodeName(node_id){
   switch (node_id) {
     case 1:
-      return "Test apparaat";
+      return "Test";
       break;
     default:
       return `Node ${node_id}`;
+      break;
+  }
+}
+
+function getFriendlyMeasurementName(unit_of_measurement) {
+  switch(unit_of_measurement) {
+    case '˚C':
+      return 'temperature';
+      break;
+    case '%':
+      return 'humidity';
+      break;
+    default:
+      return 'data';
       break;
   }
 }
