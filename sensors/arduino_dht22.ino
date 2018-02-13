@@ -1,59 +1,72 @@
+#include <dht.h>
+#include <avr/pgmspace.h>
 #include <RF24Network.h>
 #include <RF24.h>
 #include <SPI.h>
-#include <dht.h>
-#include <JeeLib.h>
+#include "printf.h"
+#include <avr/sleep.h>
+#include <avr/power.h>
 
 #define DHT22_PIN 5
-#define SLEEP_TIME 5000 // 5 Seconds
-
-ISR(WDT_vect) { Sleepy::watchdogEvent(); }
+#define SLEEP_TIME 60 * 10 // 10 minutes
 
 RF24 radio(7,8);
 RF24Network network(radio);
 
 dht DHT;
 
-const uint16_t address = 01;
-const uint16_t hub_address = 00;
+const uint16_t NODE_ADDRESS = 01;
+const uint16_t HUB_ADDRESS = 00;
 
 struct payload_t {
-  float humidity;
-  float temperature;
   uint16_t id;
+  uint16_t temperature;
+  uint16_t humidity;
 };
 
 void setup(void)
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   SPI.begin();
   radio.begin();
-  network.begin(90, address);
+  radio.setPALevel(RF24_PA_HIGH);
+  network.begin(90, NODE_ADDRESS);
+  network.setup_watchdog(6 /* 1 Second */);
 }
 
 void loop() {
   network.update();
-  int chk = DHT.read22(DHT22_PIN);
-  float tmp = 0.0;
-  if(chk == DHTLIB_OK) {
-    tmp = DHT.temperature;
+  int dhtStatus = DHT.read22(DHT22_PIN);
+  float temperature = 0;
+  float humidity = 0;
+  
+  if(dhtStatus == DHTLIB_OK) {
+    temperature = DHT.temperature;
+    humidity = DHT.humidity;
   } else {
-    Serial.print("Error reading DHT");
+    Serial.println("Error reading DHT");
   }
-  Serial.print("Sending...");
-  payload_t payload = { millis(), tmp };
-  RF24NetworkHeader header(hub_address);
-  bool ok = network.write(header, &payload, sizeof(payload));
-  if (ok) {
+  
+  Serial.println("SENDING:");
+  
+  Serial.print("Temperature: ");
+  Serial.println(temperature * 10);
+  Serial.print("Humidity: ");
+  Serial.println(humidity * 10);
+  
+  payload_t payload = {NODE_ADDRESS, temperature * 10, humidity * 10};
+  
+  RF24NetworkHeader header(HUB_ADDRESS);
+  
+  bool sent = network.write(header, &payload, sizeof(payload));
+  
+  if (sent) {
     Serial.println("OK");
   } else {
-      Serial.println("FAILED");
+    Serial.println("FAILED");
   }
-  
-  Serial.println("SLEEP");
+
   radio.stopListening();
-  
-  Sleepy::loseSomeTime(5000);
-  
- Serial.println("Awake"); 
+  network.sleepNode(SLEEP_TIME, 255);
+  Serial.println("AWAKE"); 
 }
