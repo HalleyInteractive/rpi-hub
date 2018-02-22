@@ -27,8 +27,18 @@ const logger = createLogger({
 rf24hub.from.on('message', function(value) {
   let data = JSON.parse(value);
   logger.info(data);
-  postNodeData(data.id, '˚C', data.temperature);
-  postNodeData(data.id, '%', data.humidity);
+  
+  if(data.temperature !== 0) {
+    postNodeData(data.id, '˚C', data.temperature);
+  } else {
+    logger.alert('Invalid temperature reading');
+  }
+
+  if(data.humidity !== 0) {
+    postNodeData(data.id, '%', data.humidity);
+  } else {
+    logger.alert('Invalid humidity reading');
+  }
 });
 
 function postNodeData(node_id, unit_of_measurement, state) {
