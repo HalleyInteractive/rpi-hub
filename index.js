@@ -31,13 +31,13 @@ rf24hub.from.on('message', function(value) {
   if(data.temperature !== 0) {
     postNodeData(data.id, '˚C', data.temperature);
   } else {
-    logger.alert('Invalid temperature reading');
+    logger.warn('Invalid temperature reading');
   }
 
   if(data.humidity !== 0) {
     postNodeData(data.id, '%', data.humidity);
   } else {
-    logger.alert('Invalid humidity reading');
+    logger.warn('Invalid humidity reading');
   }
 });
 
