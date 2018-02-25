@@ -59,3 +59,7 @@ typings/
 
 # Module building dir
 build
+
+# Fritzing Output
+sensors/Gerber
+sensors/PDF
