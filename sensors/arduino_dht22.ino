@@ -67,6 +67,6 @@ void loop() {
   }
 
   radio.stopListening();
-  network.sleepNode(SLEEP_TIME, 255);
+  network.sleepNode(SLEEP_TIME, 0); // Pin 2
   Serial.println("AWAKE"); 
 }
