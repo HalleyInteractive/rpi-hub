@@ -56,7 +56,7 @@ function postNodeData(node_id, unit_of_measurement, state) {
 
   let req = http.request(options, function(res) {
     logger.debug(`Status: ${res.statusCode}`);
-    logger.debug(`Headers: ${JSON.stringify(res.headers)}`);
+    logger.silly(`Headers: ${JSON.stringify(res.headers)}`);
     res.setEncoding('utf8');
     res.on('data', function (body) {
       logger.debug(`Body: ${body}`);

@@ -62,3 +62,8 @@ build
 
 # Secrets
 secrets.json
+
+# Fritzing Output
+sensors/Gerber
+sensors/PDF
+
