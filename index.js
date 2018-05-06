@@ -5,7 +5,8 @@ const addon_path = path.join(__dirname, 'build/Release/rf24hub');
 const rf24hub = worker(addon_path);
 const { createLogger, format, transports } = require('winston');
 const { combine, timestamp, label, printf } = format;
-const http = require("http");
+const http = require("https");
+const secrets = require('./secrets.json');
 
 const logFormat = printf(info => {
   return `[${info.level.toUpperCase()}] ${info.timestamp} -> node: ${info.message.id}, temperature: ${info.message.temperature}, humidity: ${info.message.humidity}`;
@@ -27,7 +28,7 @@ const logger = createLogger({
 rf24hub.from.on('message', function(value) {
   let data = JSON.parse(value);
   logger.info(data);
-  
+
   if(data.temperature !== 0) {
     postNodeData(data.id, '˚C', data.temperature);
   } else {
@@ -43,12 +44,13 @@ rf24hub.from.on('message', function(value) {
 
 function postNodeData(node_id, unit_of_measurement, state) {
   let options = {
-    hostname: '127.0.0.1',
-    port: 8123,
+    hostname: secrets.homeassistant.domain,
     path: `/api/states/sensor.node_${node_id}_${getFriendlyMeasurementName(unit_of_measurement)}`,
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
+	    'x-ha-access': secrets.homeassistant.password
+
     }
   };
 
