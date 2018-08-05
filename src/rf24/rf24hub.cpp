@@ -48,6 +48,7 @@ class Rf24Hub : public StreamingWorker {
 
         stream << fixed << setprecision(1) << f_temperature;
         string temperature = stream.str();
+        
         stream.str("");
         stream.clear();
         stream << fixed << setprecision(1) << f_humidity;
